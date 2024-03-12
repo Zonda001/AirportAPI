@@ -10,7 +10,6 @@ from user.serializers import UserSerializer, AuthTokenSerializer, UserCreateSeri
 
 
 class UserCreateView(APIView):
-    # API view for user creation
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -20,7 +19,6 @@ class UserCreateView(APIView):
 
 
 class CreateTokenView(ObtainAuthToken):
-    # View for creating authentication tokens
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
     serializer_class = AuthTokenSerializer
 
@@ -30,5 +28,4 @@ class UserManageView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsActivateAndAuthenticated]
 
     def get_object(self):
-        # Retrieve and return the current user
         return self.request.user
