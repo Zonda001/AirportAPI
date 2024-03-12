@@ -26,7 +26,6 @@ class CreateTokenView(ObtainAuthToken):
 
 
 class UserManageView(generics.RetrieveUpdateAPIView):
-    # View for managing user profile
     serializer_class = UserSerializer
     permission_classes = [IsActivateAndAuthenticated]
 
