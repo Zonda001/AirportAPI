@@ -24,17 +24,20 @@ from .serializers import (
 
 
 class ResultsSetPagination(PageNumberPagination):
+    # Pagination class for results
     page_size = 10
     page_size_query_param = "page_size"
     max_page_size = 1000
 
 
 class CrewViewSet(viewsets.ModelViewSet):
+    # View set for Crew model
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
     pagination_class = ResultsSetPagination
 
     def get_queryset(self):
+        # Method to filter queryset by full_name if provided
         queryset = super().get_queryset()
 
         full_name = self.request.query_params.get("full_name")
@@ -59,11 +62,13 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 
 class AirportViewSet(viewsets.ModelViewSet):
+    # View set for Airport model
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
     pagination_class = ResultsSetPagination
 
     def get_queryset(self):
+        # Method to filter queryset by name if provided
         queryset = super().get_queryset()
 
         name = self.request.query_params.get("name")
@@ -86,10 +91,12 @@ class AirportViewSet(viewsets.ModelViewSet):
 
 
 class RouteViewSet(viewsets.ModelViewSet):
+    # View set for Route model
     queryset = Route.objects.select_related("source", "destination")
     pagination_class = ResultsSetPagination
 
     def get_queryset(self):
+        # Method to filter queryset by source and destination if provided
         queryset = super().get_queryset()
 
         source_name = self.request.query_params.get("from")
@@ -104,6 +111,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
+        # Dynamically select serializer class based on action
         if self.action == "list":
             return RouteListSerializer
         elif self.action == "create":
@@ -130,11 +138,13 @@ class RouteViewSet(viewsets.ModelViewSet):
 
 
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
+    # View set for AirplaneType model
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
     pagination_class = ResultsSetPagination
 
     def get_queryset(self):
+        # Method to filter queryset by name if provided
         queryset = super().get_queryset()
 
         name = self.request.query_params.get("name")
@@ -157,10 +167,12 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
+    # View set for Airplane model
     queryset = Airplane.objects.select_related("airplane_type")
     pagination_class = ResultsSetPagination
 
     def get_queryset(self):
+        # Method to filter queryset by name and airplane_type if provided
         queryset = super().get_queryset()
 
         name = self.request.query_params.get("name")
@@ -177,6 +189,7 @@ class AirplaneViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
+        # Dynamically select serializer class based on action
         if self.action == "list":
             return AirplaneListSerializer
         elif self.action == "create":
@@ -203,6 +216,7 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 
 
 class FlightViewSet(viewsets.ModelViewSet):
+    # View set for Flight model
     queryset = Flight.objects.select_related(
         "route__source", "route__destination", "airplane"
     ).prefetch_related("crew")
@@ -210,6 +224,7 @@ class FlightViewSet(viewsets.ModelViewSet):
     pagination_class = ResultsSetPagination
 
     def get_queryset(self):
+        # Method to filter queryset by various parameters
         queryset = super().get_queryset()
         current_time = timezone.now()
 
@@ -247,6 +262,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         return flights
 
     def get_serializer_class(self):
+        # Dynamically select serializer class based on action
         if self.action == "list":
             return FlightListSerializer
         elif self.action == "create":
@@ -282,6 +298,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
+        # Custom create method to handle flight creation
         serializer = FlightCreateSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -292,16 +309,19 @@ class FlightViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
+    # View set for Order model
     queryset = Order.objects.select_related("user").prefetch_related("tickets__flight")
     serializer_class = OrderListSerializer
     pagination_class = ResultsSetPagination
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # Method to filter queryset by authenticated user
         queryset = super().get_queryset().filter(user=self.request.user)
         return queryset
 
     def get_serializer_class(self):
+        # Dynamically select serializer class based on action
         if self.action == "list":
             return OrderListSerializer
         elif self.action == "create":
@@ -310,4 +330,5 @@ class OrderViewSet(viewsets.ModelViewSet):
             return OrderDetailSerializer
 
     def perform_create(self, serializer):
+        # Method to associate orders with authenticated user upon creation
         serializer.save(user=self.request.user)

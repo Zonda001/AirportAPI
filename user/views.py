@@ -8,7 +8,9 @@ from user.permissions import IsActivateAndAuthenticated
 from rest_framework.permissions import AllowAny
 from user.serializers import UserSerializer, AuthTokenSerializer, UserCreateSerializer
 
+
 class UserCreateView(APIView):
+    # API view for user creation
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -18,12 +20,16 @@ class UserCreateView(APIView):
 
 
 class CreateTokenView(ObtainAuthToken):
+    # View for creating authentication tokens
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
     serializer_class = AuthTokenSerializer
 
+
 class UserManageView(generics.RetrieveUpdateAPIView):
+    # View for managing user profile
     serializer_class = UserSerializer
     permission_classes = [IsActivateAndAuthenticated]
 
     def get_object(self):
+        # Retrieve and return the current user
         return self.request.user
