@@ -3,5 +3,5 @@
 venv/
 .env
 db.sqlite3
-.idea/git rm --cached __pycache__
+.idea/
 .vscode
