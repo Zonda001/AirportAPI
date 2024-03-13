@@ -4,6 +4,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 from user.permissions import IsActivateAndAuthenticated
 from rest_framework.permissions import AllowAny
 from user.serializers import UserSerializer, AuthTokenSerializer, UserCreateSerializer
@@ -12,10 +13,12 @@ from user.serializers import UserSerializer, AuthTokenSerializer, UserCreateSeri
 class UserCreateView(APIView):
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class CreateTokenView(ObtainAuthToken):
