@@ -13,10 +13,7 @@ from user.serializers import UserSerializer, AuthTokenSerializer, UserCreateSeri
 class UserCreateView(APIView):
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
